@@ -1,5 +1,6 @@
 ---
 deployment:
  tasks:
- - export DEPLOYPATH=/home/tradaxge/public_html/api
+ - export DEPLOYPATH=/home/tradaxge/api
  - /bin/cp index.php $DEPLOYPATH
+ 
