@@ -2,5 +2,4 @@
 deployment:
  tasks:
  - export DEPLOYPATH=/home/tradaxge/public_html/api
- - /bin/cp index.html $DEPLOYPATH
- - /bin/cp style.css $DEPLOYPATH
+ - /bin/cp index.php $DEPLOYPATH
