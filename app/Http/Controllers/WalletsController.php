@@ -116,6 +116,7 @@ class WalletsController extends Controller
                     $w->coin_type = "BNB";
                     $w->uid = $bnb['privateKey'];
                     $w->address = $bnb['address'];
+                    $w->contractAddress = "0xB8c77482e45F1F44dE1745F52C74426C631bDD52";
                     $w->user_id = $user_id;
                     $w->save();
 
@@ -123,6 +124,7 @@ class WalletsController extends Controller
                     $usdt->coin_type = "USDT";
                     $usdt->uid = $bnb['privateKey'];
                     $usdt->address = $bnb['address'];
+                    $usdt->contractAddress = "0x55d398326f99059fF775485246999027B3197955";
                     $usdt->user_id = $user_id;
                     $usdt->save();
 
@@ -130,6 +132,7 @@ class WalletsController extends Controller
                     $btcb->coin_type = "BTCB";
                     $btcb->uid = $bnb['privateKey'];
                     $btcb->address = $bnb['address'];
+                    $btcb->contractAddress = "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c";
                     $btcb->user_id = $user_id;
                     $btcb->save();
 
