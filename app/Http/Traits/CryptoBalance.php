@@ -1,22 +1,23 @@
-<?php 
+<?php
 
 namespace App\Http\Traits;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use App\Models\Merchant;
+use App\Models\VirtualAccount;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Auth;
-use DB;
 use Exception;
 
-trait CryptoBalance 
+trait CryptoBalance
 {
     public function balance($user_id)
     {
         try {
             //code...
-        
+
                 if (Wallet::where('coin_type','USDT')->where('user_id',$user_id)->exists()) {
 
                     $wallet = Wallet::where('coin_type','USDT')->where('user_id',$user_id)->first();
@@ -29,8 +30,8 @@ trait CryptoBalance
                     'tag'=>'latest',
                     'apikey'=> 'VJJQYZ633Z977IIR6M12AZ1UUYE4MACS6U'
                     ]);
-                
-                
+
+
                     $r = $response->json();
                     //dd($r);
                     $usdt = $r['result'] / 10**18;
@@ -51,8 +52,8 @@ trait CryptoBalance
                 'tag'=>'latest',
                 'apikey'=> 'VJJQYZ633Z977IIR6M12AZ1UUYE4MACS6U'
                 ]);
-            
-            
+
+
                 $r = $response->json();
                 //dd($r);
                 $usdt = $r['result'] / 10**18;
@@ -72,8 +73,8 @@ trait CryptoBalance
                 'tag'=>'latest',
                 'apikey'=> 'VJJQYZ633Z977IIR6M12AZ1UUYE4MACS6U'
                 ]);
-            
-            
+
+
                 $r = $response->json();
                 //dd($r);
                 $usdt = $r['result'] / 10**18;
@@ -83,6 +84,21 @@ trait CryptoBalance
                 //dd($up);
                 $up->save();
             }
+
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
+    public function updateBalance($amount,$from, $to,){
+        $receive_from = $from;
+        $transfer_to = $to;
+        try {
+
+            $dr = DB::table('virtual_accounts')->where('user_id',$from)->decrement('accountBalance',$amount );
+
+            $cr = DB::table('virtual_accounts')->where('user_id',$to)->increment('accountBalance',$amount);
+
+            return array($cr,$dr);
 
         } catch (Exception $e) {
             return $e;

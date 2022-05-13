@@ -17,7 +17,11 @@ class TokenIsValid
     public function handle(Request $request, Closure $next)
     {
         if ($request->header('token') != env('API_TOKEN')) {
-            return response()->json(["status" => false,'error' => 'Unauthorised'], 401);
+            //dd($request->header('token'),env('API_TOKEN'));
+            return response()->json(["status" => false,'error' => 'Unauthorised', 'message' => "Api Key is Missing"], 401);
+        }else
+        if ($request->header('web_key') != env('WEB_KEY')) {
+            return response()->json(["status" => false,'error' => 'Unauthorised', 'message' => "Web Key is Missing"], 401);
         }
         return $next($request);
     }

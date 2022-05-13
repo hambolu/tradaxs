@@ -22,9 +22,9 @@ class TrainingController extends Controller
      */
     public function index()
     {
-        $trainings = Training::all();
-        
-            return view('training', compact('trainings');
+        //$trainings = Training::all();
+
+            //return view('training', compact('trainings');
     }
 
     /**
@@ -56,16 +56,16 @@ class TrainingController extends Controller
      */
     public function show($id)
     {
-        $training = Training::find($id);
-        $agent = new \Jenssegers\Agent\Agent;
-        $desktop = $agent->isDesktop();
-        $mobile = $agent->isMobile();
-        if ($desktop) {
-            return view('wallet.desktop.course', compact('training'));
-        }
-        if ($mobile) {
-            return view('wallet.mobile.course', compact('training'));
-        }
+        // $training = Training::find($id);
+        // $agent = new \Jenssegers\Agent\Agent;
+        // $desktop = $agent->isDesktop();
+        // $mobile = $agent->isMobile();
+        // if ($desktop) {
+        //     return view('wallet.desktop.course', compact('training'));
+        // }
+        // if ($mobile) {
+        //     return view('wallet.mobile.course', compact('training'));
+        // }
     }
 
     /**

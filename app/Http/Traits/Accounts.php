@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Traits;
 
@@ -12,31 +12,33 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\VirtualAccount;
 use App\Models\User;
 use App\Models\Transaction;
-use Illuminate\Support\Arr; 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+
 
 trait Accounts {
-    
-          
-          
-        
+
+
+
+
 
     public function createAccount($user_id){
-       
+
             $t = User::where('id',$user_id)->first();
-       
+
         try {
             $response =  Http::withHeaders([
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 "Authorization" => "Bearer sk_live_r11qk3bnede7ub2uxr45",
-                ])->post('https://api.collect.africa/reserved_accounts', 
+                ])->post('https://api.collect.africa/reserved_accounts',
                 [
                     "email" => $t->email,
                     "bvn"=> $t->bvn,
                     "account_name" => $t->name,
                     "phone_number" => $t->phone,
                     // "reference" => $ref
-                    
+
                 ]);
             // $response =  Http::withHeaders([
             //     'Accept' => 'application/json',
@@ -77,7 +79,7 @@ trait Accounts {
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
                 "Authorization" => "Bearer sk_live_r11qk3bnede7ub2uxr45",
-                ])->post('https://api.collect.africa/payments/initialize', 
+                ])->post('https://api.collect.africa/payments/initialize',
                 [
                     "email" => $email,
                     "amount" => $int,
@@ -86,17 +88,17 @@ trait Accounts {
                     "phone_number" => $phone,
                     "callback_url" => "http://localhost:8000/dashboard"
                     // "reference" => $ref
-                    
+
                 ]);
                 $createTransfer = $response->json();
-                
+
                 $ck = $createTransfer['data']['checkout_url'];
-                
+
                 $transfer = new Transaction();
                 $transfer->trx_ref = $createTransfer['data']['reference'];
                 $transfer->user_id = $user_id;
                 $transfer->save();
-                
+
                 //dd($ck);
                 return Redirect::to($ck);
                 //code...
@@ -140,4 +142,21 @@ trait Accounts {
             return $e;
         }
     }
+
+
+    public function debitCredit($amount, $from, $to,$user_id)
+    {
+
+        $dr = new Transaction();
+        $dr->debit = $amount;
+        $dr->credit = $amount;
+        $dr->user_id = $user_id;
+        $dr->transfer_to = $to;
+        $dr->receive_from = $from;
+        $dr->save();
+
+        return $dr;
+    }
+
+
 }

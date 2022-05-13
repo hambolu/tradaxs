@@ -70,13 +70,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'profile_photo_url',
     ];
 
-    public function wallets()
+    public function wallet()
     {
-        return $this->hasMany(Wallet::class,'user_id');
+        return $this->hasMany(Wallet::class);
     }
     public function account()
     {
-        return $this->hasMany(VirtualAccount::class,'user_id');
+        return $this->hasOne(VirtualAccount::class,'user_id');
     }
-    
+
 }

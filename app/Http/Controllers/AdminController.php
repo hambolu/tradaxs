@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\WalletCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\User;
@@ -13,18 +15,31 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Http\Traits\CryptoBalance;
+use App\Models\Wallet;
 
 class AdminController extends Controller
 {
     //
     public $successStatus = true;
     public $failedStatus = false;
+
     public function allUsers()
     {
             try{
 
-                $user = User::with('wallets','account')->get();
+                $user = UserCollection::collection(User::with('account')->get());
                 return response()->json(["status" => $this->successStatus, "user"=> $user])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+            } catch (Exception $e) {
+                return $e;
+            }
+    }
+    public function wallets()
+    {
+            try{
+
+                $wallets = WalletCollection::collection(Wallet::all());
+                return response()->json(["status" => $this->successStatus, "user"=> $wallets])
                     ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
             } catch (Exception $e) {
                 return $e;

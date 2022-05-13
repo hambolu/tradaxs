@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\WalletCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\User;
@@ -23,14 +24,14 @@ class WalletsController extends Controller
     public function myWallets(Request $request)
     {
         $user_id = $request->input('userId');
-        $wallets = Wallet::where('user_id',$user_id)->get();
+        $wallets = WalletCollection::collection(Wallet::where('user_id',$user_id)->get());
         return response()->json(["status" => $this->successStatus, "data"=> $wallets])
                     ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
     }
     public function createWallet(Request $request)
     {
 
-        
+
         $coin = $request->input('coin_type');
         $user_id = $request->input('userId');
 
@@ -142,13 +143,14 @@ class WalletsController extends Controller
             return $e;
         }
     }
-    public function sendTrx(Request $request){
-        
+    public function sendTrx(Request $request)
+    {
+
         $coin = $request->input('coin_type');
         $user_id = $request->input('userId');
         try {
             //code...
-        
+
         if($coin == 'USDT')
         {
             $wallet = Wallet::where('coin_type','USDT')->where('user_id',$user_id)->first();
@@ -162,7 +164,7 @@ class WalletsController extends Controller
             'amount' => $request->input('amount')
             ]);
             $tx = $response->json();
-       
+
             $fees = "0.0024";
             $am = $request->input('amount');
             $response = Http::withHeaders($hed)->bodyFormat('json')->post('https://tradaxs-api.herokuapp.com/bnbtx',[
@@ -174,7 +176,7 @@ class WalletsController extends Controller
             ]);
             $txfees = $response->json();
             $st = $response->status();
-        
+
             $t = $fees + $am;
         //dd($st,$txfees,$tx);
         $balance = $wallet->balance;
@@ -182,9 +184,9 @@ class WalletsController extends Controller
                 return response()->json(["status" => $this->failedStatus,'error' => 'Insufficent Fund'], 401);
             }elseif($st == 404){
                 return response()->json(["status" => $this->failedStatus,'error' => 'Insufficent Fund'], 401);
-                
+
             }elseif($st == 200){
-                
+
                 $transaction = new Transaction();
             $transaction->currency_symbol = $wallet->coin_type;
             $transaction->sentTo = $request->input('address');
@@ -193,11 +195,11 @@ class WalletsController extends Controller
             $transaction->save();
             return response()->json(["status" => $this->successStatus, "data"=> $transaction, "message" => "Transaction Successfully"])
             ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
-    
+
             }
         }elseif($coin == "BNB"){
             $wallet = Wallet::where('coin_type','BNB')->where('user_id',Auth::id())->first();
-      
+
             //0x753A5aFE4bD69fbf7F465F5e7Fae25B4080AC2Ca
            $hed = [
                   'Content-Type' => 'application/json',
@@ -211,9 +213,9 @@ class WalletsController extends Controller
                 'gas' => "21000",
                 ]);
             $tx = $response->json();
-            
+
             $fees = "0.0024";
-            
+
             $response = Http::withHeaders($hed)->bodyFormat('json')->post('https://tradaxs-api.herokuapp.com/bnbtx',[
                 'holder' => '0x753A5aFE4bD69fbf7F465F5e7Fae25B4080AC2Ca',
                 'pkey' => $wallet->uid,
@@ -224,39 +226,40 @@ class WalletsController extends Controller
             $txfees = $response->json();
             //dd($tx);
             $st = $response->status();
-            
-            
+
+
             $response = Http::withHeaders($hed)->bodyFormat('json')->post('https://tradaxs-api.herokuapp.com/bnb-balance',[
                 'balance' => $wallet->address
                 ]);
             $dd = $response->json();
-            
+
             $t = $amount + $fees;
-            
+
             $balance = $wallet->balance;
-            
+
             if($t < $balance){
                 return response()->json(["status" => $this->failedStatus,'error' => 'Insufficent Fund'], 401);
             }elseif($st == 404){
                 return response()->json(["status" => $this->failedStatus,'error' => 'Insufficent Fund'], 401);
             }elseif($st == 200){
-                
+
                 $transaction = new Transaction();
             $transaction->currency_symbol = $wallet->coin_type;
             $transaction->sentTo = $request->input('address');
             $transaction->amount = $request->input('amount');
             $transaction->user_id = Auth::id();
             $transaction->save();
-            
+
             return response()->json(["status" => $this->successStatus, "data"=> $transaction, "message" => "Transaction Successfully"])
             ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
-      
+
             }
-             
+
         }
-    } catch (\Throwable $th) {
-        //throw $th;
+        } catch (Exception $e) {
+            return $e;
+        }
+
     }
-        
-    }
+
 }

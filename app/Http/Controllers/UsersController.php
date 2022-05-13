@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Http\Traits\CryptoBalance;
 use App\Http\Traits\Accounts;
-
+use Uuid;
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\WalletCollection;
 
 class UsersController extends Controller
 {
@@ -32,12 +34,13 @@ class UsersController extends Controller
         try{
             $accounts = $this->createAccount($user_id);
             //dd($accounts);
-        $user = User::with('account')->where('id',$user_id)->get();
-        $user_wallets = Wallet::where('user_id',$user_id)->get();
+        // $user = User::with('account')->where('id',$user_id)->get();
+        $user_wallets = WalletCollection::collection(Wallet::where('user_id',$user_id)->get());
+        $user = UserCollection::collection(User::with('account')->where('id',$user_id)->get());
 
         $cryptobalance = $this->balance($user_id);
-        
-        return response()->json(["status" => $this->successStatus, "user"=> $user, "wallets" => $user_wallets])
+
+        return response()->json(["status" => $this->successStatus, "user"=> $user, 'user_wallet' => $user_wallets])
             ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
         } catch (Exception $e) {
             return $e;
@@ -64,6 +67,8 @@ class UsersController extends Controller
     public function store(Request $request)
     {
         //
+        $uuid = Uuid::generate()->string;
+                //dd($uuid);
         try {
         $request->validate([
             'name'            => 'required|max:255',
@@ -73,9 +78,10 @@ class UsersController extends Controller
             'username'          => 'required',
             'password'        => 'required|min:8',
         ]);
-        
+
+
                 $create = new User();
-                $create->unique_id = Str::random(40);
+                $create->unique_id = $uuid;
                 $create->name = $request->input('name');
                 $create->email = $request->input('email');
                 $password = $request->input('password');
@@ -83,17 +89,16 @@ class UsersController extends Controller
                 $create->phone = $request->input('phone');
                 $create->username = $request->input('username');
                 $create->bvn = $request->input('bvn');
-                
-                
-
                     //dd($create);
                 $create->save();
                 return response()->json(["status" => $this->successStatus, "user"=> $create])
             ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+
         } catch (Exception $e) {
-            return $e;
+            return response()->json(["status" => $this->failedStatus, "error"=> $e],401);
+
         }
-               
+
     }
 
     /**
@@ -145,7 +150,7 @@ class UsersController extends Controller
                 'username'          => 'required',
                 'password'        => 'required|min:8',
             ]);
-            
+
                     $update = new User();
                     $update->name = $request->input('name');
                     $update->email = $request->input('email');
@@ -154,9 +159,9 @@ class UsersController extends Controller
                     $update->phone = $request->input('phone');
                     $update->username = $request->input('username');
                     $update->bvn = $request->input('bvn');
-                    
-                    
-    
+
+
+
                         //dd($update);
                     $update->save();
                     return response()->json(["status" => $this->successStatus, "user"=> $update])

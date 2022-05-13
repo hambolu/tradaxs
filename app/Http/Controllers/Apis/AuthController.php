@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Apis;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserCollection;
+use App\Http\Resources\WalletCollection;
 use Illuminate\Http\Response;
 use App\Models\User;
+use App\Models\Wallet;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,14 +25,17 @@ class AuthController extends Controller
             //Login to account
             if (Auth::attempt(['email' => request('email'), 'password' => request('password')])) {
 
-                $user = User::where('id',Auth::id())->get();
+                //$user = User::where('id',Auth::id())->get();
+                $user = UserCollection::collection(User::with('account')->where('id',Auth::id())->get());
                 if(Auth::user()->email_verified_at == null){
                     return response()->json(
                         ["status" => $this->failedStatus,
-                        'error' => 'Unverified', 
+                        'error' => 'Unverified',
                         'verification_link' => '/email/verify'], 401);
                 }else{
-                return response()->json(["status" => $this->successStatus, "user"=>$user])
+
+                    $user_wallets = WalletCollection::collection(Wallet::where('user_id',Auth::id())->get());
+                return response()->json(["status" => $this->successStatus, "user"=>[$user,$user_wallets]])
         ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
                 }
             }else{
@@ -51,7 +57,7 @@ class AuthController extends Controller
             'password'        => 'required|min:8',
         ]);
         try {
-               
+
 
             if(User::where('username',$request->input('username'))->exists()  || $request->input('username') == null){
                 return response()->json(["status" => $this->failedStatus,'error' => 'UserName exits or  empty'], 401);
@@ -76,8 +82,8 @@ class AuthController extends Controller
                 $create->phone = $request->input('phone');
                 $create->username = $request->input('username');
                 $create->bvn = $request->input('bvn');
-                
-                
+
+
 
                     dd($create);
                 $create->save();
