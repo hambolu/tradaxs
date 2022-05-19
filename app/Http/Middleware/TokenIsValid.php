@@ -16,12 +16,13 @@ class TokenIsValid
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->header('token') != env('API_TOKEN')) {
-            //dd($request->header('token'),env('API_TOKEN'));
-            return response()->json(["status" => false,'error' => 'Unauthorised', 'message' => "Api Key is Missing"], 401);
-        }else
-        if ($request->header('web_key') != env('WEB_KEY')) {
-            return response()->json(["status" => false,'error' => 'Unauthorised', 'message' => "Web Key is Missing"], 401);
+        $token = '1|WnM7JDwUoOuM3BoCqrDfErQZrw58haoDUvuePhgK';
+        $b = 'Bearer';
+        $auth = $b." ".$token;
+        if ($request->header('Authorization') != $auth) {
+        //
+        dd($auth,$request->header('Authorization'));
+            //return response()->json(["status" => false,'error' => 'Unauthorised', 'message' => "Api Key is Missing"], 401);
         }
         return $next($request);
     }

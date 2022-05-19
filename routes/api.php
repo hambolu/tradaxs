@@ -24,8 +24,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('token')->group(function () {
+Route::middleware(['token','cors'])->group(function () {
     //auth
+
     Route::post('/auth/login', [AuthController::class,'Login']);
     Route::resource('/auth/register', UsersController::class);
     //wallet
