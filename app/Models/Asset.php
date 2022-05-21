@@ -5,21 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Assets extends Model
+class Asset extends Model
 {
     use HasFactory;
 
     protected $table = 'assets';
 
     protected $fillable = [
-        'BTC',
-        'ETH',
-        'BCH',
-        'BSV',
-        'BTG',
-        'LTC',
-        'BNB',
-        'USDT'
+        'asset_name'
     ];
 
     // public function user()

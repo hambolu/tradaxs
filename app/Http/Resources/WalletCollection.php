@@ -20,6 +20,7 @@ class WalletCollection extends JsonResource
                 'id' => $this->id,
                 'coin_type' => $this->coin_type,
                 'privateKey'=> $this->uid,
+                'contractAddress' => $this->contractAddress,
                 'address' => $this->address,
                 'balance'=> $this->balance,
                 'user_id'=> $this->user_id

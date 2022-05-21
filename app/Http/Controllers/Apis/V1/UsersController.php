@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Apis\V1;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\User;
@@ -15,6 +16,9 @@ use App\Http\Traits\Accounts;
 use Uuid;
 use App\Http\Resources\UserCollection;
 use App\Http\Resources\WalletCollection;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Validation\Rules\Password;
+
 
 class UsersController extends Controller
 {
@@ -33,8 +37,6 @@ class UsersController extends Controller
         $user_id = request('userId');
         try{
             $accounts = $this->createAccount($user_id);
-            //dd($accounts);
-        // $user = User::with('account')->where('id',$user_id)->get();
         $user_wallets = WalletCollection::collection(Wallet::where('user_id',$user_id)->get());
         $user = UserCollection::collection(User::with('account')->where('id',$user_id)->get());
 
@@ -76,26 +78,35 @@ class UsersController extends Controller
             'phone'           => 'required',
             'bvn'       => 'required',
             'username'          => 'required',
-            'password'        => 'required|min:8',
+            'password' => 'required|min:8',
         ]);
 
-
-                $create = new User();
-                $create->unique_id = $uuid;
-                $create->name = $request->input('name');
-                $create->email = $request->input('email');
-                $password = $request->input('password');
-                $create->password = Hash::make($password);
-                $create->phone = $request->input('phone');
-                $create->username = $request->input('username');
-                $create->bvn = $request->input('bvn');
-                    //dd($create);
-                $create->save();
-                return response()->json(["status" => $this->successStatus, "user"=> $create])
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'bvn'   => $request->bvn,
+            'unique_id' => $uuid,
+            'phone'  => $request->phone,
+            'username'  => $request->username,
+            'password' => Hash::make($request->password),
+        ]);
+                // $create = new User();
+                // $create->unique_id = $uuid;
+                // $create->name = $request->input('name');
+                // $create->email = $request->input('email');
+                // $password = $request->input('password');
+                // $create->password = Hash::make($password);
+                // $create->phone = $request->input('phone');
+                // $create->username = $request->input('username');
+                // $create->bvn = $request->input('bvn');
+                //     //dd($create);
+                // $create->save();
+                event(new Registered($user));
+                return response()->json(["status" => $this->successStatus, "user"=> $user])
             ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
 
         } catch (Exception $e) {
-            return response()->json(["status" => $this->failedStatus, "error"=> $e],401);
+            return response($e);
 
         }
 

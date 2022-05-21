@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Apis\V1;
 
+use App\Http\Controllers\Controller;
 use App\Http\Resources\WalletCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use App\Http\Traits\CryptoBalance;
+use App\Models\Asset;
 
 class WalletsController extends Controller
 {
@@ -263,6 +265,16 @@ class WalletsController extends Controller
             return $e;
         }
 
+    }
+    public function allAssets()
+    {
+        try {
+            $assets = Asset::all();
+            return response()->json(["status" => $this->successStatus, "data"=> $assets,])
+            ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+        } catch (Exception $e) {
+            return $e;
+        }
     }
 
 }

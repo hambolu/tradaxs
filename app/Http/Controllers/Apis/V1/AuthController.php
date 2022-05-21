@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Apis;
+namespace App\Http\Controllers\Apis\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserCollection;
@@ -12,12 +12,20 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Session;
+use Illuminate\Support\Facades\URL;
+use Laravel\Passport\TokenRepository;
 
 class AuthController extends Controller
 {
     public $successStatus = true;
     public $failedStatus = false;
+    public $url;
 
+    public function __construct()
+    {
+        $this->url = URL::to("/");
+    }
 
     public function Login(Request $request)
     {
@@ -26,16 +34,20 @@ class AuthController extends Controller
             if (Auth::attempt(['email' => request('email'), 'password' => request('password')])) {
 
                 //$user = User::where('id',Auth::id())->get();
+                $l = $this->url;
                 $user = UserCollection::collection(User::with('account')->where('id',Auth::id())->get());
                 if(Auth::user()->email_verified_at == null){
                     return response()->json(
                         ["status" => $this->failedStatus,
                         'error' => 'Unverified',
-                        'verification_link' => '/email/verify'], 401);
+                        'message' => 'please Check your mail',
+                        'resend_verification' => $l.'/api/v1/email/verification-notification'
+                    ], 401);
                 }else{
 
                     $user_wallets = WalletCollection::collection(Wallet::where('user_id',Auth::id())->get());
-                return response()->json(["status" => $this->successStatus, "user"=>[$user,$user_wallets]])
+                    $accessToken = Auth::user()->createToken('authToken')->accessToken;
+                return response()->json(["status" => $this->successStatus, "user"=>[$user,$user_wallets], "accessToken" => $accessToken])
         ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
                 }
             }else{
@@ -94,5 +106,13 @@ class AuthController extends Controller
         } catch (Exception $e) {
             //throw $th;
         }
+    }
+    public function logout(Request $request) {
+        // $tokenId = $request->input('accessToken');
+        // $tokenRepository = app(TokenRepository::class);
+        // $tokenRepository->revokeAccessToken($tokenId);
+        Auth::logout();
+      return response()->json(["status" => $this->successStatus, "message"=> "logut Successfull"])
+            ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
     }
 }

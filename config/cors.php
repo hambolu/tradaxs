@@ -18,13 +18,21 @@ return [
     'paths' => [
         'api/auth/login',
         'api/auth/register',
-        // 'api/auth/login',
-        // 'api/auth/login',
+        'api/createWallet',
+        'api/allusers',
+        'api/merchantoffers',
+        'api/transactions',
+        'api/myWallets',
+        'api/users',
+        'api/wallets',
+        'api/createOffer',
+        'api/buyOffer',
+        'api/auth/logout'
     ],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['localhost:8081','localhost:8001'],
+    'allowed_origins' => ['api.tradaxs.com','localhost:8081','localhost:8000'],
 
     'allowed_origins_patterns' => [],
 
