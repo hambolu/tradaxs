@@ -8,7 +8,6 @@ use App\Http\Controllers\Apis\V1\UsersController;
 use App\Http\Controllers\Apis\V1\WalletsController;
 use App\Http\Controllers\Apis\V1\EmailVerification;
 use App\Http\Controllers\Apis\V1\NewPasswordController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,7 +35,8 @@ Route::middleware(['token','cors'])->group(function () {
     Route::post('/v1/reset-password', [NewPasswordController::class, 'reset']);
 
     //wallet
-    Route::get('/v1/createWallet', [WalletsController::class,'createWallet']);
+    Route::post('/v1/createWallet', [WalletsController::class,'createWallet'])->name('createWallet');
+    Route::post('/v1/create_wallet', [WalletsController::class,'wallet'])->name('wallet');
     Route::get('/v1/myWallets', [WalletsController::class,'myWallets']);
 
     Route::get('/v1/allAssets', [WalletsController::class,'allAssets']);

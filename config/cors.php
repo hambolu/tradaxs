@@ -16,18 +16,19 @@ return [
     */
 
     'paths' => [
-        'api/auth/login',
-        'api/auth/register',
-        'api/createWallet',
-        'api/allusers',
-        'api/merchantoffers',
-        'api/transactions',
-        'api/myWallets',
-        'api/users',
-        'api/wallets',
-        'api/createOffer',
-        'api/buyOffer',
-        'api/auth/logout'
+        'api/v1/auth/login',
+        'api/v1/auth/register',
+        'api/v1/createWallet',
+        'api/v1/create_wallet',
+        'api/v1/allusers',
+        'api/v1/merchantoffers',
+        'api/v1/transactions',
+        'api/v1/myWallets',
+        'api/v1/users',
+        'api/v1/wallets',
+        'api/v1/createOffer',
+        'api/v1/buyOffer',
+        'api/v1/auth/logout'
     ],
 
     'allowed_methods' => ['*'],

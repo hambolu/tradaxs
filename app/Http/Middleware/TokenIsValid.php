@@ -21,7 +21,7 @@ class TokenIsValid
         $auth = $b." ".$token;
         if ($request->header('Authorization') != $auth) {
         //
-        dd($auth,$request->header('Authorization'));
+        //dd($auth,$request->header('Authorization'));
             //return response()->json(["status" => false,'error' => 'Unauthorised', 'message' => "Api Key is Missing"], 401);
         }
         return $next($request);

@@ -30,6 +30,123 @@ class WalletsController extends Controller
         return response()->json(["status" => $this->successStatus, "data"=> $wallets])
                     ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
     }
+    public function wallet(Request $request){
+
+        $coin = $request->input('coin_type');
+        $user_id = $request->input('userId');
+
+        try {
+            if (Wallet::where('coin_type',$coin)->where('user_id',$user_id)->exists()) {
+
+                $cryptobalance = $this->balance($user_id);
+                $wallet = Wallet::where('coin_type',$coin)->where('user_id',$user_id)->get();
+                return response()->json(["status" => $this->successStatus, "message"=> "Wallet Already Exists", "wallet" => $wallet])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+
+            }else{
+                if($coin == 'BTC'){
+                    $response = Http::get('https://tradaxs-api.herokuapp.com/btc');
+                    $btc = $response->json();
+
+                    $w = new wallet();
+                    $w->coin_type = "BTC";
+                    $w->uid = $btc['privateKey'];
+                    $w->address = $btc['address'];
+                    $w->user_id = $user_id;
+                    $w->save();
+
+                    return response()->json(["status" => $this->successStatus, "wallet"=> $w])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+                }elseif($coin == 'ETH'){
+                    $response = Http::get('https://tradaxs-api.herokuapp.com/eth');
+                    $eth = $response->json();
+
+                    $w = new wallet();
+                    $w->coin_type = "ETH";
+                    $w->uid = $eth['privateKey'];
+                    $w->address = $eth['address'];
+                    $w->user_id = $user_id;
+                    $w->save();
+
+                    return response()->json(["status" => $this->successStatus, "wallet"=> $w])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+                }elseif($coin == 'BCH'){
+                    $response = Http::get('https://tradaxs-api.herokuapp.com/bch');
+                    $bch = $response->json();
+
+                    $w = new wallet();
+                    $w->coin_type = "BCH";
+                    $w->uid = $bch['privateKey'];
+                    $w->address = $bch['address'];
+                    $w->user_id = $user_id;
+                    $w->save();
+
+                    return response()->json(["status" => $this->successStatus, "wallet"=> $w])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+                }elseif($coin == 'LTC'){
+                    $response = Http::get('https://tradaxs-api.herokuapp.com/ltc');
+                    $ltc = $response->json();
+
+                    $w = new wallet();
+                    $w->coin_type = "LTC";
+                    $w->uid = $ltc['privateKey'];
+                    $w->address = $ltc['address'];
+                    $w->user_id = $user_id;
+                    $w->save();
+
+                    return response()->json(["status" => $this->successStatus, "wallet"=> $w])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+                }elseif($coin == 'DOGE'){
+                    $response = Http::get('https://tradaxs-api.herokuapp.com/doge');
+                    $doge = $response->json();
+
+                    $w = new wallet();
+                    $w->coin_type = "DOGE";
+                    $w->uid = $doge['privateKey'];
+                    $w->address = $doge['address'];
+                    $w->user_id = $user_id;
+                    $w->save();
+
+                    return response()->json(["status" => $this->successStatus, "wallet"=> $doge])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+                }elseif($coin == 'BNB'){
+                    $response = Http::get('https://tradaxs-api.herokuapp.com/bnb');
+                    $bnb = $response->json();
+
+                    $w = new wallet();
+                    $w->coin_type = "BNB";
+                    $w->uid = $bnb['privateKey'];
+                    $w->address = $bnb['address'];
+                    $w->contractAddress = "0xB8c77482e45F1F44dE1745F52C74426C631bDD52";
+                    $w->user_id = $user_id;
+                    $w->save();
+
+                    $usdt = new wallet();
+                    $usdt->coin_type = "USDT";
+                    $usdt->uid = $bnb['privateKey'];
+                    $usdt->address = $bnb['address'];
+                    $usdt->contractAddress = "0x55d398326f99059fF775485246999027B3197955";
+                    $usdt->user_id = $user_id;
+                    $usdt->save();
+
+                    $btcb = new wallet();
+                    $btcb->coin_type = "BTCB";
+                    $btcb->uid = $bnb['privateKey'];
+                    $btcb->address = $bnb['address'];
+                    $btcb->contractAddress = "0x7130d2a12b9bcbfae4f2634d864a1ee1ce3ead9c";
+                    $btcb->user_id = $user_id;
+                    $btcb->save();
+
+                    return response()->json(["status" => $this->successStatus, "wallet"=> [$w,$usdt,$btcb]])
+                    ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
+                }else{
+                    return response()->json(["status" => $this->failedStatus,'error' => 'Invalid Data'], 401);
+                }
+            }
+        } catch (Exception $e) {
+            return $e;
+        }
+    }
     public function createWallet(Request $request)
     {
 
@@ -56,7 +173,7 @@ class WalletsController extends Controller
                     $w->user_id = $user_id;
                     $w->save();
 
-                    return response()->json(["status" => $this->successStatus, "user"=> $w])
+                    return response()->json(["status" => $this->successStatus, "wallet"=> $w])
                     ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
                 }elseif($coin == 'ETH'){
                     $response = Http::get('https://tradaxs-api.herokuapp.com/eth');
@@ -69,7 +186,7 @@ class WalletsController extends Controller
                     $w->user_id = $user_id;
                     $w->save();
 
-                    return response()->json(["status" => $this->successStatus, "user"=> $w])
+                    return response()->json(["status" => $this->successStatus, "wallet"=> $w])
                     ->setStatusCode(Response::HTTP_OK, Response::$statusTexts[Response::HTTP_OK]);
                 }elseif($coin == 'BCH'){
                     $response = Http::get('https://tradaxs-api.herokuapp.com/bch');
